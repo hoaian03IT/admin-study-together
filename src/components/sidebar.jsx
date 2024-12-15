@@ -14,7 +14,7 @@ const items = [
 
 export const Sidebar = () => {
     return (
-        <div className="flex flex-col items-center shadow-md h-screen">
+        <div className="flex flex-col items-center shadow-md h-full">
             {items.map((item) => {
                 const Icon = item.icon;
                 return (
