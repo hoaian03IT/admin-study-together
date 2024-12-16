@@ -30,7 +30,6 @@ export default function CourseManagement() {
     const queryClient = useQueryClient();
 
     const [courses, setCourses] = useState([]);
-
     const [filter, setFilter] = useState({
         searchId: "",
         role: "",
@@ -38,9 +37,7 @@ export default function CourseManagement() {
         sourceLanguageId: "",
         price: "0-9999",
     });
-
     const [sort, setSort] = useState(initSorts);
-
     const [page, setPage] = useState({
         currentPage: 1,
         limitRecords: 15,

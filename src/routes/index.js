@@ -5,4 +5,5 @@ export const pathname = {
     signin: "/sign-in",
     courses: "/courses",
     revenues: "/revenues",
+    courseApproval: "/course-approval",
 };

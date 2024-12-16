@@ -2,9 +2,6 @@
 import {
     Button,
     Image,
-    Modal,
-    ModalBody,
-    ModalContent,
     Spinner,
     Table,
     TableBody,
@@ -14,38 +11,14 @@ import {
     TableRow,
 } from "@nextui-org/react";
 import clsx from "clsx";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useState } from "react";
 import { FaSortDown, FaSortUp, FaSort } from "react-icons/fa";
-import { useQuery } from "react-query";
-import { queryKeys } from "../react-query/queryKeys";
-import { CourseService } from "../apis/course.api";
-import { useRecoilValue } from "recoil";
-import { userState } from "../recoil/atoms/user.atom";
-import { GlobalStateContext } from "../providers/GlobalStateProvider";
-import { toast } from "react-toastify";
 import { CourseInformationModal } from "./course-information-modal";
+import { PreviewImageModal } from "./preview-image-modal";
 
 export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDisableEnableCourse }) => {
-    const user = useRecoilValue(userState);
-    const { updateUserState } = useContext(GlobalStateContext);
-
     const [imagePreview, setImagePreview] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
-
-    const courseInformationQuery = useQuery({
-        queryKey: [queryKeys.courseInformation, selectedCourse],
-        queryFn: async () => {
-            try {
-                return await CourseService.fetchCourseInformation(selectedCourse, user, updateUserState);
-            } catch (error) {
-                console.error(error);
-                toast.error(error?.response?.data?.errorCode);
-            }
-        },
-        enabled: selectedCourse !== null,
-        staleTime: 60 * 1000 * 5, // 5 minutes,
-        cacheTime: 60 * 1000 * 10, // 10 minutes
-    });
 
     return isLoading ? (
         <div className="flex justify-center">
@@ -168,7 +141,7 @@ export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDi
                                 <TableCell>
                                     <span
                                         className={clsx(
-                                            "text-white text-[12px] py-1 px-2 rounded-small",
+                                            "block text-white text-[12px] py-1 px-2 rounded-small",
                                             course?.["is private"] ? "bg-red-400" : "bg-green-400"
                                         )}>
                                         {course?.["is private"] ? "Private" : "Public"}
@@ -201,31 +174,12 @@ export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDi
                 </TableBody>
             </Table>
             {/* modal to show image */}
-            <Modal
-                size="lg"
-                className="p-0"
-                isOpen={!!imagePreview}
-                onClose={() => {
-                    setImagePreview(null);
-                }}>
-                <ModalContent className="p-0">
-                    <ModalBody className="p-0">
-                        <div className="flex justify-center">
-                            <Image src={imagePreview} className="size-96" />
-                        </div>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+            <PreviewImageModal imagePreview={imagePreview} setImagePreview={setImagePreview} />
             {/* modal to show course information */}
             <CourseInformationModal
                 isOpen={selectedCourse !== null}
-                isLoading={
-                    courseInformationQuery.isFetching ||
-                    courseInformationQuery.isLoading ||
-                    courseInformationQuery.isRefetching
-                }
                 onClose={() => setSelectedCourse(null)}
-                courseInformation={courseInformationQuery.data}
+                courseId={selectedCourse}
             />
         </Fragment>
     );

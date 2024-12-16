@@ -4,4 +4,5 @@ export const queryKeys = {
     languages: "language-list",
     roles: "role-list",
     courseInformation: "course-information",
+    courseApproval: "course-approval",
 };

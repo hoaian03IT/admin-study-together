@@ -29,6 +29,24 @@ class CourseService {
         const res = await httpAuth.post(`/course/admin/disable-course`, { courseId });
         return res.data;
     }
+
+    static async fetchPendingCourse({ limit, page }, userState, updateUserState) {
+        const httpAuth = createHttpAuth(userState, updateUserState);
+        const res = await httpAuth.get(`/course/admin/pending-courses?li=${limit}&np=${page}`);
+        return res.data;
+    }
+
+    static async approveCourse(courseId, userState, updateUserState) {
+        const httpAuth = createHttpAuth(userState, updateUserState);
+        const res = await httpAuth.post(`/course/admin/approve-course`, { courseId });
+        return res.data;
+    }
+
+    static async rejectCourse(courseId, rejectContent, userState, updateUserState) {
+        const httpAuth = createHttpAuth(userState, updateUserState);
+        const res = await httpAuth.post(`/course/admin/reject-course`, { courseId, rejectContent });
+        return res.data;
+    }
 }
 
 export { CourseService };
