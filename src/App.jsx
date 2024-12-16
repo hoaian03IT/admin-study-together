@@ -4,6 +4,7 @@ import { Fragment, Suspense } from "react";
 import { Spinner } from "@nextui-org/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthBlocker } from "./components/auth-blocker";
 
 function App() {
     return (
@@ -34,9 +35,11 @@ function App() {
                                 key={route.path}
                                 path={route.path}
                                 element={
-                                    <Layout>
-                                        <Element />
-                                    </Layout>
+                                    <AuthBlocker>
+                                        <Layout>
+                                            <Element />
+                                        </Layout>
+                                    </AuthBlocker>
                                 }
                             />
                         );

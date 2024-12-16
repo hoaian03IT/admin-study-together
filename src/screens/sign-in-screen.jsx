@@ -1,18 +1,18 @@
+import { useState } from "react";
+import { useMutation } from "react-query";
+import { AuthService } from "../apis/auth.api";
 import { Button, Form, Input } from "@nextui-org/react";
-import { useEffect, useState } from "react";
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
 import { validationForm } from "../utils/validateForm";
 import appLogo from "../assets/logo-no-background.png";
-import { useMutation } from "react-query";
-import { AuthService } from "../apis/auth.api";
 import { userState } from "../recoil/atoms/user.atom";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { pathname } from "../routes";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 
 export default function SignIn() {
-    const setUser = useSetRecoilState(userState);
+    const [user, setUser] = useRecoilState(userState);
 
     const [formValue, setFormValue] = useState({ username: "", password: "" });
     const [showPassword, setShowPassword] = useState(false);
@@ -85,7 +85,9 @@ export default function SignIn() {
             mutationNormalSubmit.mutate({ usernameOrEmail: formValue.username, password: formValue.password });
         }
     };
-    return (
+    return user.isLogged ? (
+        <Navigate to={pathname.dashboard} />
+    ) : (
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <Form className="w-96 bg-[#f8f6f6] p-4 rounded-small shadow-md" onSubmit={handleSubmit}>
                 <div className="w-full my-8 flex justify-center">

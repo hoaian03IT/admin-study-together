@@ -8,10 +8,10 @@ const CourseManagement = lazy(() => import("../screens/course-management-screen"
 const Revenue = lazy(() => import("../screens/revenues-screen"));
 const SignIn = lazy(() => import("../screens/sign-in-screen"));
 
-export const publicRoutes = [
+export const publicRoutes = [{ path: pathname.signin, component: SignIn, layout: null }];
+export const privateRoutes = [
     { path: pathname.dashboard, component: Dashboard, layout: PrimaryLayout },
     { path: pathname.users, component: UserManagement, layout: PrimaryLayout },
     { path: pathname.courses, component: CourseManagement, layout: PrimaryLayout },
     { path: pathname.revenues, component: Revenue, layout: PrimaryLayout },
 ];
-export const privateRoutes = [{ path: pathname.signin, component: SignIn, layout: null }];

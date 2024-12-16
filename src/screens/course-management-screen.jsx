@@ -1,22 +1,5 @@
-import {
-    Button,
-    Image,
-    Modal,
-    ModalBody,
-    ModalContent,
-    Select,
-    SelectItem,
-    Spinner,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-    Tooltip,
-    Input,
-} from "@nextui-org/react";
-import { useQuery } from "react-query";
+import { Button, Select, SelectItem, Tooltip, Input } from "@nextui-org/react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { queryKeys } from "../react-query/queryKeys";
 import { CourseService } from "../apis/course.api";
 import { useRecoilValue } from "recoil";
@@ -24,13 +7,12 @@ import { userState } from "../recoil/atoms/user.atom";
 import { useContext, useEffect, useState } from "react";
 import { GlobalStateContext } from "../providers/GlobalStateProvider";
 import { toast } from "react-toastify";
-import clsx from "clsx";
 import { CiFilter } from "react-icons/ci";
 import { LanguageService } from "../apis/language.api";
 import { RiResetLeftLine } from "react-icons/ri";
 import { RoleService } from "../apis/role.api";
 import { useDebounce } from "../hooks/useDebounce";
-import { FaSortDown, FaSortUp, FaSort } from "react-icons/fa";
+import { TableListCourse } from "../components/table-list-course";
 
 const initSorts = {
     id: null,
@@ -45,8 +27,10 @@ export default function CourseManagement() {
     const user = useRecoilValue(userState);
     const { updateUserState } = useContext(GlobalStateContext);
 
+    const queryClient = useQueryClient();
+
     const [courses, setCourses] = useState([]);
-    const [imagePreview, setImagePreview] = useState(null);
+
     const [filter, setFilter] = useState({
         searchId: "",
         role: "",
@@ -128,48 +112,105 @@ export default function CourseManagement() {
         cacheTime: 1000 * 60 * 10, // Cache trong 10 phút
     });
 
+    const disableCourseMutation = useMutation({
+        mutationFn: async (courseId) => await CourseService.disableCourse(courseId, user, updateUserState),
+        onSuccess: (data) => {
+            toast.success("Course has been disabled successfully.");
+            handleUpdateEnableDisableStatus(data);
+        },
+        onError: async (error) => {
+            toast.error(error.response.data?.errorCode);
+        },
+    });
+
+    const enableCourseMutation = useMutation({
+        mutationFn: async (courseId) => await CourseService.enableCourse(courseId, user, updateUserState),
+        onSuccess: (data) => {
+            toast.success("Course has been enabled successfully.");
+            handleUpdateEnableDisableStatus(data);
+        },
+        onError: async (error) => {
+            toast.error(error.response.data?.errorCode);
+        },
+    });
+
+    const handleUpdateEnableDisableStatus = (data) => {
+        let courses = queryClient.getQueryData([
+            queryKeys.courseList,
+            searchDebounce,
+            filter.role,
+            filter.price,
+            filter.sourceLanguageId,
+            filter.targetLanguageId,
+            page.currentPage,
+            page.limitRecords,
+        ]);
+        let index = courses.findIndex((course) => data?.["course id"] === course?.["course id"]);
+        courses[index] = { ...courses[index], "is deleted": data?.["is deleted"] };
+
+        queryClient.setQueryData(
+            [
+                queryKeys.courseList,
+                searchDebounce,
+                filter.role,
+                filter.price,
+                filter.sourceLanguageId,
+                filter.targetLanguageId,
+                page.currentPage,
+                page.limitRecords,
+            ],
+            courses
+        );
+    };
+    // cap nhat lai list course khi sort hoac co query courses
     useEffect(() => {
-        console.log(sort);
         let courses = courseListQuery.data || [];
-        console.log(courses);
+
         if (sort.id)
             courses.sort((a, b) => {
                 return sort.id === "asc" ? a?.["course id"] - b?.["course id"] : b?.["course id"] - a?.["course id"];
             });
-
-        if (sort.name)
+        else if (sort.name)
             courses.sort((a, b) => {
                 return sort.name === "asc"
                     ? a?.["name"].localeCompare(b?.["name"])
                     : b?.["name"].localeCompare(a?.["name"]);
             });
-        if (sort.owner)
+        else if (sort.owner)
             courses.sort((a, b) =>
                 sort.owner === "asc"
                     ? a?.["username"].localeCompare(b?.["username"])
                     : b?.["username"].localeCompare(a?.["username"])
             );
-        if (sort.price)
+        else if (sort.price)
             courses.sort((a, b) =>
                 sort.price === "asc"
                     ? Number(a?.["price"]) - Number(b?.["price"])
                     : Number(b?.["price"]) - Number(a?.["price"])
             );
-
-        if (sort.createdAt)
+        else if (sort.createdAt)
             courses.sort((a, b) =>
                 sort.createdAt === "asc"
                     ? new Date(a?.["created at"]) - new Date(b?.["created at"])
                     : new Date(b?.["created at"]) - new Date(a?.["created at"])
             );
-        if (sort.levelCourse)
+        else if (sort.levelCourse)
             courses.sort((a, b) =>
                 sort.levelCourse === "asc"
                     ? a?.["course level name"].localeCompare(b?.["course level name"])
                     : b?.["course level name"].localeCompare(a?.["course level name"])
             );
+
         setCourses(courses);
     }, [courseListQuery, sort]);
+
+    const handleDisableEnableCourse = (action, courseId) => {
+        if (action === "enable") {
+            enableCourseMutation.mutate(courseId);
+        } else if (action === "disable") {
+            disableCourseMutation.mutate(courseId);
+        }
+    };
 
     const handleResetFilter = () => {
         setFilter({
@@ -259,194 +300,47 @@ export default function CourseManagement() {
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-2">
+                <div className="flex items-center justify-between gap-2">
                     <Button
                         radius="sm"
                         color="primary"
-                        isDisabled={page.currentPage <= 1}
-                        onPress={() => setPage({ ...page, currentPage: page.currentPage - 1 })}>
-                        Previous
+                        onPress={() => {
+                            courseListQuery.refetch();
+                        }}>
+                        Force refresh
                     </Button>
-                    <Button
-                        radius="sm"
-                        color="primary"
-                        isDisabled={courseListQuery.data?.length === 0}
-                        onPress={() => setPage({ ...page, currentPage: page.currentPage + 1 })}>
-                        Next
-                    </Button>
-                </div>
-
-                {courseListQuery.isLoading || courseListQuery.isRefetching || courseListQuery.isFetching ? (
-                    <Spinner />
-                ) : (
-                    <Table isStriped aria-label="Example static collection table" radius="sm">
-                        <TableHeader radius="sm">
-                            <TableColumn>
-                                <span className="flex items-center cursor-pointer" aria-label="id" onClick={handleSort}>
-                                    ID
-                                    {sort.id === "asc" ? (
-                                        <FaSortUp aria-label="id" onClick={handleSort} />
-                                    ) : sort.id === "desc" ? (
-                                        <FaSortDown aria-label="id" onClick={handleSort} />
-                                    ) : (
-                                        <FaSort aria-label="id" onClick={handleSort} />
-                                    )}
-                                </span>
-                            </TableColumn>
-                            <TableColumn>
-                                <span
-                                    className="flex items-center cursor-pointer"
-                                    aria-label="name"
-                                    onClick={handleSort}>
-                                    Name
-                                    {sort.name === "asc" ? (
-                                        <FaSortUp aria-label="name" onClick={handleSort} />
-                                    ) : sort.name === "desc" ? (
-                                        <FaSortDown aria-label="name" onClick={handleSort} />
-                                    ) : (
-                                        <FaSort aria-label="name" onClick={handleSort} />
-                                    )}
-                                </span>
-                            </TableColumn>
-                            <TableColumn>Image Preview</TableColumn>
-                            <TableColumn>
-                                <span
-                                    className="flex items-center cursor-pointer"
-                                    aria-label="owner"
-                                    onClick={handleSort}>
-                                    Owner
-                                    {sort.owner === "asc" ? (
-                                        <FaSortUp aria-label="owner" onClick={handleSort} />
-                                    ) : sort.owner === "desc" ? (
-                                        <FaSortDown aria-label="owner" onClick={handleSort} />
-                                    ) : (
-                                        <FaSort aria-label="owner" onClick={handleSort} />
-                                    )}
-                                </span>
-                            </TableColumn>
-                            <TableColumn>Role</TableColumn>
-                            <TableColumn>
-                                <span
-                                    className="flex items-center cursor-pointer"
-                                    aria-label="price"
-                                    onClick={handleSort}>
-                                    Price($)
-                                    {sort.price === "asc" ? (
-                                        <FaSortUp aria-label="price" onClick={handleSort} />
-                                    ) : sort.price === "desc" ? (
-                                        <FaSortDown aria-label="price" onClick={handleSort} />
-                                    ) : (
-                                        <FaSort aria-label="price" onClick={handleSort} />
-                                    )}
-                                </span>
-                            </TableColumn>
-                            <TableColumn>
-                                <span
-                                    className="flex items-center cursor-pointer"
-                                    aria-label="createdAt"
-                                    onClick={handleSort}>
-                                    Created at
-                                    {sort.createdAt === "asc" ? (
-                                        <FaSortUp aria-label="createdAt" onClick={handleSort} />
-                                    ) : sort.createdAt === "desc" ? (
-                                        <FaSortDown aria-label="createdAt" onClick={handleSort} />
-                                    ) : (
-                                        <FaSort aria-label="createdAt" onClick={handleSort} />
-                                    )}
-                                </span>
-                            </TableColumn>
-                            <TableColumn>Target</TableColumn>
-                            <TableColumn>Source</TableColumn>
-                            <TableColumn>
-                                <span
-                                    className="flex items-center cursor-pointer"
-                                    aria-label="levelCourse"
-                                    onClick={handleSort}>
-                                    Level course
-                                    {sort.levelCourse === "asc" ? (
-                                        <FaSortUp aria-label="levelCourse" onClick={handleSort} />
-                                    ) : sort.levelCourse === "desc" ? (
-                                        <FaSortDown aria-label="levelCourse" onClick={handleSort} />
-                                    ) : (
-                                        <FaSort aria-label="levelCourse" onClick={handleSort} />
-                                    )}
-                                </span>
-                            </TableColumn>
-                            <TableColumn>Status</TableColumn>
-                            <TableColumn>Actions</TableColumn>
-                        </TableHeader>
-                        <TableBody>
-                            {courses?.map((course) => {
-                                const createdAt = new Date(course?.["created at"]);
-                                return (
-                                    <TableRow key={course?.["course id"]}>
-                                        <TableCell>{course?.["course id"]}</TableCell>
-                                        <TableCell>{course?.["name"]}</TableCell>
-                                        <TableCell>
-                                            <Image
-                                                src={course?.["image"]}
-                                                loading="lazy"
-                                                className="size-10 cursor-pointer"
-                                                radius="sm"
-                                                onClick={() => {
-                                                    setImagePreview(course?.["image"]);
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell>{course?.["username"]}</TableCell>
-                                        <TableCell>{course?.["role name"]}</TableCell>
-                                        <TableCell>{course?.["price"]}</TableCell>
-                                        <TableCell>
-                                            {createdAt.getDate()}-{createdAt.getMonth() + 1}-{createdAt.getFullYear()}
-                                        </TableCell>
-
-                                        <TableCell>{course?.["target language"]}</TableCell>
-                                        <TableCell>{course?.["source language"]}</TableCell>
-                                        <TableCell>{course?.["course level name"]}</TableCell>
-                                        <TableCell>
-                                            <span
-                                                className={clsx(
-                                                    "text-white text-[12px] py-1 px-2 rounded-small",
-                                                    course?.["status"] === "done" ? "bg-green-500" : "bg-red-500 "
-                                                )}>
-                                                {course?.["status"]}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-1">
-                                                <Button radius="sm" size="sm">
-                                                    View
-                                                </Button>
-                                                <Button radius="sm" size="sm">
-                                                    {course?.["is deleted"] ? "Enable" : "Disable"}
-                                                </Button>
-                                                <Button radius="sm" size="sm">
-                                                    Delete
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                )}
-            </div>
-            <Modal
-                size="lg"
-                className="p-0"
-                isOpen={!!imagePreview}
-                onClose={() => {
-                    setImagePreview(null);
-                }}>
-                <ModalContent className="p-0">
-                    <ModalBody className="p-0">
-                        <div className="flex justify-center">
-                            <Image src={imagePreview} className="size-96" />
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                            <span className="text-[12px]">
+                                Showing {courses.length} courses of page {page.currentPage}
+                            </span>
                         </div>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+                        <Button
+                            radius="sm"
+                            color="primary"
+                            isDisabled={page.currentPage <= 1}
+                            onPress={() => setPage({ ...page, currentPage: page.currentPage - 1 })}>
+                            Previous
+                        </Button>
+                        <Button
+                            radius="sm"
+                            color="primary"
+                            isDisabled={courseListQuery.data?.length === 0}
+                            onPress={() => setPage({ ...page, currentPage: page.currentPage + 1 })}>
+                            Next
+                        </Button>
+                    </div>
+                </div>
+                <TableListCourse
+                    isLoading={
+                        courseListQuery?.isLoading || courseListQuery?.isRefetching || courseListQuery?.isFetching
+                    }
+                    sort={sort}
+                    handleSort={handleSort}
+                    courses={courses}
+                    handleDisableEnableCourse={handleDisableEnableCourse}
+                />
+            </div>
         </div>
     );
 }

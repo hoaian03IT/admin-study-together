@@ -27,7 +27,7 @@ export const Header = () => {
                         <Dropdown radius="sm">
                             <DropdownTrigger>
                                 <div className="flex items-center gap-4 justify-end cursor-pointer">
-                                    <Avatar size="md" src={user.info.avatar} />
+                                    <Avatar size="md" src={user?.info?.avatar} />
                                     <div>
                                         <p className="text-sm font-semibold">
                                             {user?.info?.firstName} {user?.info?.lastName}
