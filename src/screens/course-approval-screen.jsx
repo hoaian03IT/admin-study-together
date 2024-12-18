@@ -4,7 +4,7 @@ import { queryKeys } from "../react-query/queryKeys";
 import { CourseService } from "../apis/course.api";
 import { useRecoilValue } from "recoil";
 import { userState } from "../recoil/atoms/user.atom";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { Fragment, useCallback, useContext, useEffect, useState } from "react";
 import { GlobalStateContext } from "../providers/GlobalStateProvider";
 import { toast } from "react-toastify";
 import { useDetectScroll } from "../hooks/useDetectScroll";
@@ -124,50 +124,54 @@ export default function CourseApprovalScreen() {
                     Force refresh
                 </Button>
             </div>
-            <CourseApprovalTable
-                courses={courses}
-                handleApproveRejectCourse={handleApproveRejectCourse}
-                setSelectedCourse={setSelectedCourse}
-            />
-            {(courseApprovalQuery.isFetching || courseApprovalQuery.isLoading || courseApprovalQuery.isRefetching) && (
-                <div className="w-full flex justify-center">
-                    <Spinner color="primary" size="lg" />
-                </div>
-            )}
-
-            <CourseInformationModal
-                courseId={selectedCourse}
-                isOpen={!!selectedCourse}
-                onClose={() => {
-                    setSelectedCourse(null);
-                }}
-                footer={
-                    <div className="flex items-center gap-2">
-                        <Button
-                            color="success"
-                            radius="sm"
-                            size="sm"
-                            onPress={() => handleApproveRejectCourse("approve", selectedCourse)}>
-                            Approve
-                        </Button>
-                        <Button
-                            color="warning"
-                            radius="sm"
-                            size="sm"
-                            onPress={() => handleApproveRejectCourse("reject", selectedCourse)}>
-                            Reject
-                        </Button>
+            <div>
+                <CourseApprovalTable
+                    courses={courses}
+                    handleApproveRejectCourse={handleApproveRejectCourse}
+                    setSelectedCourse={setSelectedCourse}
+                />
+                {(courseApprovalQuery.isFetching ||
+                    courseApprovalQuery.isLoading ||
+                    courseApprovalQuery.isRefetching) && (
+                    <div className="w-full flex justify-center">
+                        <Spinner color="primary" size="lg" />
                     </div>
-                }
-            />
-            {/* modal for reject reason */}
-            <RejectionModal
-                showRejectReasonModal={showRejectReasonModal}
-                rejectReason={rejectReason}
-                setRejectReason={setRejectReason}
-                handleRejectCourse={handleRejectCourse}
-                onClose={handleCloseRejectionModal}
-            />
+                )}
+
+                <CourseInformationModal
+                    courseId={selectedCourse}
+                    isOpen={!!selectedCourse}
+                    onClose={() => {
+                        setSelectedCourse(null);
+                    }}
+                    footer={
+                        <div className="flex items-center gap-2">
+                            <Button
+                                color="success"
+                                radius="sm"
+                                size="sm"
+                                onPress={() => handleApproveRejectCourse("approve", selectedCourse)}>
+                                Approve
+                            </Button>
+                            <Button
+                                color="warning"
+                                radius="sm"
+                                size="sm"
+                                onPress={() => handleApproveRejectCourse("reject", selectedCourse)}>
+                                Reject
+                            </Button>
+                        </div>
+                    }
+                />
+                {/* modal for reject reason */}
+                <RejectionModal
+                    showRejectReasonModal={showRejectReasonModal}
+                    rejectReason={rejectReason}
+                    setRejectReason={setRejectReason}
+                    handleRejectCourse={handleRejectCourse}
+                    onClose={handleCloseRejectionModal}
+                />
+            </div>
         </div>
     );
 }

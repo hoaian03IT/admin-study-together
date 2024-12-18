@@ -6,4 +6,5 @@ export const pathname = {
     courses: "/courses",
     revenues: "/revenues",
     courseApproval: "/course-approval",
+    userDetails: "/user-details",
 };

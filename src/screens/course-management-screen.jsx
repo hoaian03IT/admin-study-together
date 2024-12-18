@@ -1,5 +1,5 @@
 import { Button, Select, SelectItem, Tooltip, Input } from "@nextui-org/react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { queryKeys } from "../react-query/queryKeys";
 import { CourseService } from "../apis/course.api";
 import { useRecoilValue } from "recoil";
@@ -26,8 +26,6 @@ const initSorts = {
 export default function CourseManagement() {
     const user = useRecoilValue(userState);
     const { updateUserState } = useContext(GlobalStateContext);
-
-    const queryClient = useQueryClient();
 
     const [courses, setCourses] = useState([]);
     const [filter, setFilter] = useState({
@@ -111,54 +109,26 @@ export default function CourseManagement() {
 
     const disableCourseMutation = useMutation({
         mutationFn: async (courseId) => await CourseService.disableCourse(courseId, user, updateUserState),
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast.success("Course has been disabled successfully.");
-            handleUpdateEnableDisableStatus(data);
+            courseListQuery.refetch();
         },
         onError: async (error) => {
-            toast.error(error.response.data?.errorCode);
+            toast.error(error.response.dataerrorCode);
         },
     });
 
     const enableCourseMutation = useMutation({
         mutationFn: async (courseId) => await CourseService.enableCourse(courseId, user, updateUserState),
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast.success("Course has been enabled successfully.");
-            handleUpdateEnableDisableStatus(data);
+            courseListQuery.refetch();
         },
         onError: async (error) => {
             toast.error(error.response.data?.errorCode);
         },
     });
 
-    const handleUpdateEnableDisableStatus = (data) => {
-        let courses = queryClient.getQueryData([
-            queryKeys.courseList,
-            searchDebounce,
-            filter.role,
-            filter.price,
-            filter.sourceLanguageId,
-            filter.targetLanguageId,
-            page.currentPage,
-            page.limitRecords,
-        ]);
-        let index = courses.findIndex((course) => data?.["course id"] === course?.["course id"]);
-        courses[index] = { ...courses[index], "is deleted": data?.["is deleted"] };
-
-        queryClient.setQueryData(
-            [
-                queryKeys.courseList,
-                searchDebounce,
-                filter.role,
-                filter.price,
-                filter.sourceLanguageId,
-                filter.targetLanguageId,
-                page.currentPage,
-                page.limitRecords,
-            ],
-            courses
-        );
-    };
     // cap nhat lai list course khi sort hoac co query courses
     useEffect(() => {
         let courses = courseListQuery.data || [];

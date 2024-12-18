@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { createContext, useState } from "react";
 import { useRecoilState } from "recoil";
 import { userState } from "../recoil/atoms/user.atom.js";

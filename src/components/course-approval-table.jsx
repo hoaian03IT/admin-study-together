@@ -87,6 +87,7 @@ export const CourseApprovalTable = memo(({ courses = [], setSelectedCourse, hand
                                 <TableCell>
                                     <div className="flex items-center gap-1">
                                         <Button
+                                            color="primary"
                                             radius="sm"
                                             size="sm"
                                             onPress={() => setSelectedCourse(course?.["course id"])}>

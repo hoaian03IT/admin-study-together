@@ -141,7 +141,7 @@ export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDi
                                 <TableCell>
                                     <span
                                         className={clsx(
-                                            "block text-white text-[12px] py-1 px-2 rounded-small",
+                                            "block text-white text-[12px] py-1 px-2 rounded-small text-center",
                                             course?.["is private"] ? "bg-red-400" : "bg-green-400"
                                         )}>
                                         {course?.["is private"] ? "Private" : "Public"}
@@ -152,12 +152,14 @@ export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDi
                                         <Button
                                             radius="sm"
                                             size="sm"
+                                            color="primary"
                                             onPress={() => setSelectedCourse(course?.["course id"])}>
                                             View
                                         </Button>
                                         <Button
                                             radius="sm"
                                             size="sm"
+                                            color={course?.["is deleted"] ? "success" : "danger"}
                                             onPress={() =>
                                                 handleDisableEnableCourse(
                                                     course?.["is deleted"] ? "enable" : "disable",
