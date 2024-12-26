@@ -6,4 +6,7 @@ export const queryKeys = {
     courseInformation: "course-information",
     courseApproval: "course-approval",
     listUsers: "list-users",
+    userInfo: "user-info",
+    enrolledCourse: "enrolled-course",
+    ownedCourse: "owned-course",
 };

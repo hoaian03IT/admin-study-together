@@ -47,6 +47,18 @@ class CourseService {
         const res = await httpAuth.post(`/course/admin/reject-course`, { courseId, rejectContent });
         return res.data;
     }
+
+    static async fetchUserOwnedCourse(userId, userState, updateUserState) {
+        const httpAuth = createHttpAuth(userState, updateUserState);
+        const res = await httpAuth.get(`/course/admin/user-owned-courses/${userId}`);
+        return res.data;
+    }
+
+    static async fetchUserEnrolledCourse(userId, userState, updateUserState) {
+        const httpAuth = createHttpAuth(userState, updateUserState);
+        const res = await httpAuth.get(`/course/admin/user-enrolled-courses/${userId}`);
+        return res.data;
+    }
 }
 
 export { CourseService };

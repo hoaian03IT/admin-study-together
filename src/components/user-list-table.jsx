@@ -1,4 +1,6 @@
+/* eslint-disable react/prop-types */
 import { Avatar, Button, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { convertUTCToLocal } from "../utils/convert-UTC-to-local";
 
 export const UserListTable = ({ listUsers = [], handleDisableEnableUser }) => {
     return (
@@ -35,7 +37,7 @@ export const UserListTable = ({ listUsers = [], handleDisableEnableUser }) => {
             </TableHeader>
             <TableBody>
                 {listUsers?.map((user) => {
-                    const createdAt = new Date(user?.["created at"]);
+                    const createdAt = convertUTCToLocal(user?.["created at"]);
                     return (
                         <TableRow key={user?.["user id"]}>
                             <TableCell>{user?.["user id"]}</TableCell>
@@ -47,16 +49,18 @@ export const UserListTable = ({ listUsers = [], handleDisableEnableUser }) => {
                                 {user?.["first name"]}&nbsp;{user?.["last name"]}
                             </TableCell>
                             <TableCell>{user?.["role name"]}</TableCell>
-                            <TableCell>
-                                {createdAt.getDate()} - {createdAt.getMonth() + 1} - {createdAt.getFullYear()}
-                            </TableCell>
+                            <TableCell>{createdAt.toLocaleDateString()}</TableCell>
                             <TableCell>{user?.["spent"]}</TableCell>
                             <TableCell>{user?.["number created course"]}</TableCell>
                             <TableCell>{user?.["number enrollment"]}</TableCell>
                             <TableCell>
                                 <div className="flex items-center gap-2">
                                     <Button size="sm" radius="sm" color="primary">
-                                        View
+                                        <a
+                                            href={`http://localhost:5174/user-details/${user?.["user id"]}`}
+                                            target="_blank">
+                                            View
+                                        </a>
                                     </Button>
                                     <Button
                                         size="sm"

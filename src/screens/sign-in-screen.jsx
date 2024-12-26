@@ -26,8 +26,12 @@ export default function SignIn() {
     const mutationNormalSubmit = useMutation({
         mutationFn: AuthService.loginUserAccount,
         onSuccess: (res) => {
-            handleUpdateUserState({ status: res.status, data: res.data });
-            navigate(pathname.dashboard);
+            if (res.data?.["role name"] === "admin") {
+                handleUpdateUserState({ status: res.status, data: res.data });
+                navigate(pathname.dashboard);
+            } else {
+                toast.warn("Only admin can access this page");
+            }
         },
         onError: async (error) => {
             toast.warn(error.response.data?.errorCode);

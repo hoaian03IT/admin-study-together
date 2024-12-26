@@ -15,6 +15,7 @@ import { Fragment, useState } from "react";
 import { FaSortDown, FaSortUp, FaSort } from "react-icons/fa";
 import { CourseInformationModal } from "./course-information-modal";
 import { PreviewImageModal } from "./preview-image-modal";
+import { convertUTCToLocal } from "../utils/convert-UTC-to-local";
 
 export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDisableEnableCourse }) => {
     const [imagePreview, setImagePreview] = useState(null);
@@ -112,7 +113,7 @@ export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDi
                 </TableHeader>
                 <TableBody>
                     {courses?.map((course) => {
-                        const createdAt = new Date(course?.["created at"]);
+                        const createdAt = convertUTCToLocal(course?.["created at"]);
                         return (
                             <TableRow key={course?.["course id"]}>
                                 <TableCell>{course?.["course id"]}</TableCell>
@@ -131,9 +132,7 @@ export const TableListCourse = ({ courses, isLoading, sort, handleSort, handleDi
                                 <TableCell>{course?.["username"]}</TableCell>
                                 <TableCell>{course?.["role name"]}</TableCell>
                                 <TableCell>{course?.["price"]}</TableCell>
-                                <TableCell>
-                                    {createdAt.getDate()}-{createdAt.getMonth() + 1}-{createdAt.getFullYear()}
-                                </TableCell>
+                                <TableCell>{createdAt.toLocaleDateString()}</TableCell>
 
                                 <TableCell>{course?.["target language"]}</TableCell>
                                 <TableCell>{course?.["source language"]}</TableCell>

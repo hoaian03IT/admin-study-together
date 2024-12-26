@@ -3,6 +3,7 @@ import { Button, Image, Table, TableBody, TableCell, TableColumn, TableHeader, T
 import { Fragment, memo, useState } from "react";
 import clsx from "clsx";
 import { PreviewImageModal } from "../components/preview-image-modal";
+import { convertUTCToLocal } from "../utils/convert-UTC-to-local";
 
 // eslint-disable-next-line react/display-name
 export const CourseApprovalTable = memo(({ courses = [], setSelectedCourse, handleApproveRejectCourse }) => {
@@ -51,7 +52,7 @@ export const CourseApprovalTable = memo(({ courses = [], setSelectedCourse, hand
                 </TableHeader>
                 <TableBody>
                     {courses?.map((course) => {
-                        const createdAt = new Date(course?.["created at"]);
+                        const createdAt = convertUTCToLocal(course?.["created at"]);
                         return (
                             <TableRow key={course?.["course id"]}>
                                 <TableCell>{course?.["course id"]}</TableCell>
@@ -72,9 +73,7 @@ export const CourseApprovalTable = memo(({ courses = [], setSelectedCourse, hand
                                 <TableCell>{course?.["tag"]}</TableCell>
                                 <TableCell>{course?.["short description"]}</TableCell>
 
-                                <TableCell>
-                                    {createdAt.getDate()}-{createdAt.getMonth() + 1}-{createdAt.getFullYear()}
-                                </TableCell>
+                                <TableCell>{createdAt.toLocaleDateString()}</TableCell>
 
                                 <TableCell>{course?.["target language"]}</TableCell>
                                 <TableCell>{course?.["source language"]}</TableCell>

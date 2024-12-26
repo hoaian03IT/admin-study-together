@@ -43,32 +43,6 @@ export default function CourseManagement() {
 
     const searchDebounce = useDebounce(filter.searchId, 500);
 
-    const roleListQuery = useQuery({
-        queryKey: [queryKeys.roles],
-        queryFn: async () => {
-            try {
-                const data = await RoleService.getRoles(user, updateUserState);
-                return data?.["roles"];
-            } catch (error) {
-                console.error(error);
-                toast.error(error?.response?.data?.errorCode);
-            }
-        },
-    });
-
-    const languageListQuery = useQuery({
-        queryKey: [queryKeys.languages],
-        queryFn: async () => {
-            try {
-                const data = await LanguageService.fetchAllLanguages();
-                return data?.["languages"];
-            } catch (error) {
-                console.error(error);
-                toast.error(error?.response?.data?.errorCode);
-            }
-        },
-    });
-
     const courseListQuery = useQuery({
         queryKey: [
             queryKeys.courseList,
@@ -105,6 +79,34 @@ export default function CourseManagement() {
         enabled: user.isLogged,
         staleTime: 1000 * 60 * 2, // Fresh trong 2 phút
         cacheTime: 1000 * 60 * 10, // Cache trong 10 phút
+    });
+
+    const roleListQuery = useQuery({
+        queryKey: [queryKeys.roles],
+        queryFn: async () => {
+            try {
+                const data = await RoleService.getRoles(user, updateUserState);
+                return data?.["roles"];
+            } catch (error) {
+                console.error(error);
+                toast.error(error?.response?.data?.errorCode);
+            }
+        },
+        enabled: Array.isArray(courseListQuery.data),
+    });
+
+    const languageListQuery = useQuery({
+        queryKey: [queryKeys.languages],
+        queryFn: async () => {
+            try {
+                const data = await LanguageService.fetchAllLanguages();
+                return data?.["languages"];
+            } catch (error) {
+                console.error(error);
+                toast.error(error?.response?.data?.errorCode);
+            }
+        },
+        enabled: Array.isArray(courseListQuery.data),
     });
 
     const disableCourseMutation = useMutation({

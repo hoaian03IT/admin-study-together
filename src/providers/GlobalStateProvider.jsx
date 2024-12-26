@@ -54,6 +54,7 @@ function GlobalStateProvider({ children }) {
             navigate(pathname.signin); // redirect to home page after logout
         },
         onError: (error) => {
+            setShowLogoutModal(false);
             console.error(error);
             toast.error("Oops! Something went wrong!");
         },

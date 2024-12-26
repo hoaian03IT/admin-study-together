@@ -35,6 +35,12 @@ class UserServiceClass {
         const res = await httpAuth.post(`/user/admin/disable-user`, { userId });
         return res.data;
     }
+
+    async fetchUserInfoDetails(userId, userState, updateUserState) {
+        const httpAuth = createHttpAuth(userState, updateUserState);
+        const res = await httpAuth.get(`/user/admin/user-details/${userId}`);
+        return res.data;
+    }
 }
 
 const UserService = new UserServiceClass();
