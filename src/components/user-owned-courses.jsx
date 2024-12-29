@@ -92,6 +92,15 @@ export const UserOwnedCourse = ({ userId }) => {
                                         )}>
                                         {item?.["is private"] ? "Private" : "Public"}
                                     </span>
+                                    <span
+                                        className={clsx(
+                                            "py-1 px-2 rounded-large",
+                                            item?.["is deleted"]
+                                                ? "text-red-500 bg-red-200"
+                                                : "text-blue-500 bg-blue-200"
+                                        )}>
+                                        {item?.["is deleted"] ? "Inactive" : "Active"}
+                                    </span>
                                 </TableCell>
                             </TableRow>
                         );

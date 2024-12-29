@@ -43,7 +43,7 @@ export const UserBasicInformation = ({ userInfo }) => {
                             <Tooltip content="Phone number" placement="bottom-start" radius="sm">
                                 <div className="flex items-center gap-4">
                                     <CiPhone className="size-8" />
-                                    <p>{userInfo?.["phone number"] ? userInfo?.["phone number"] : "------"}</p>
+                                    <p>{userInfo?.["phone"] ? userInfo?.["phone"] : "------"}</p>
                                 </div>
                             </Tooltip>
                             <Tooltip content="Created time" placement="bottom-start" radius="sm">

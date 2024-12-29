@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useQuery } from "react-query";
 import { queryKeys } from "../react-query/queryKeys";
 import { CourseService } from "../apis/course.api";
@@ -34,7 +35,7 @@ export const UserEnrolledCourse = ({ userId }) => {
             <Table radius="sm">
                 <TableHeader>
                     <TableColumn>Enrollment id</TableColumn>
-                    <TableColumn>Enrollment id</TableColumn>
+                    <TableColumn>Points</TableColumn>
                     <TableColumn>Joined at</TableColumn>
                     <TableColumn>Last updated at</TableColumn>
                     <TableColumn>Expired at</TableColumn>

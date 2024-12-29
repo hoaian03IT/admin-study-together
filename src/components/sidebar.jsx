@@ -7,7 +7,7 @@ import clsx from "clsx";
 import { Tooltip } from "@nextui-org/react";
 
 const items = [
-    { path: pathname.dashboard, icon: BiSolidDashboard, title: "Dashboard" },
+    // { path: pathname.dashboard, icon: BiSolidDashboard, title: "Dashboard" },
     { path: pathname.users, icon: BiUser, title: "User management" },
     { path: pathname.courses, icon: RiPassPendingFill, title: "Courses management" },
     { path: pathname.courseApproval, icon: RiPassPendingFill, title: "Courses approval" },
