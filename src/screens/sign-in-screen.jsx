@@ -28,7 +28,7 @@ export default function SignIn() {
         onSuccess: (res) => {
             if (res.data?.["role name"] === "admin") {
                 handleUpdateUserState({ status: res.status, data: res.data });
-                navigate(pathname.dashboard);
+                navigate(pathname.users);
             } else {
                 toast.warn("Only admin can access this page");
             }

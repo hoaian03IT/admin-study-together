@@ -68,7 +68,7 @@ function GlobalStateProvider({ children }) {
         if (user?.isLogged) {
             logoutMutation.mutate();
         } else {
-            toast.warn("Bạn chưa đăng nhập trước đó");
+            toast.warn("You have not been logged");
         }
     };
 
@@ -78,6 +78,10 @@ function GlobalStateProvider({ children }) {
             try {
                 if (user?.isLogged) {
                     const data = await UserService.fetchUserInfo(user, updateUserState);
+                    if (data?.["role name"] !== "admin") {
+                        handleLogout();
+                        return;
+                    }
                     if (data) {
                         setUser((prev) => ({
                             ...prev,
